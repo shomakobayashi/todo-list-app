@@ -59,7 +59,7 @@ jobs:
             exit 1
           fi
 
-          echo "work_dir=./infra/${project_id}/prd/" >> $GITHUB_OUTPUT
+          echo "work_dir=./infra/${project_id}/" >> $GITHUB_OUTPUT
           echo "plan_apply=${plan_apply}" >> $GITHUB_OUTPUT
           echo "unlock=${unlock}" >> $GITHUB_OUTPUT
           echo "project=${project_id}" >> $GITHUB_OUTPUT

@@ -74,6 +74,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ap-northeast-1
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
@@ -100,6 +106,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ap-northeast-1
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
@@ -123,11 +135,10 @@ jobs:
     needs: get-information
     if: ${{ needs.get-information.outputs.unlock == 'true' }}
     steps:
-      - name: AWS CLI Configure
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ap-northeast-1
 
       - name: TFState Unlock

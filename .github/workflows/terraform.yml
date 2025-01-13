@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       project_id:
-        description: "Project Identifier"
+        description: "Project Identifier (e.g., prd)"
         required: true
         type: string
       plan_apply_id:
@@ -77,8 +77,6 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ap-northeast-1
 
@@ -145,4 +143,4 @@ jobs:
 
       - name: TFState Unlock
         run: |
-          aws dynamodb delete-item --table-name "terraform-lock-table" --key '{"LockID": {"S": "infra/${{ needs.get-information.outputs.project }}/prd/terraform.tfstate"}}'
+          aws dynamodb delete-item --table-name "terraform-lock-table" --key '{"LockID": {"S": "infra/${{ needs.get-information.outputs.project }}/terraform.tfstate"}}'

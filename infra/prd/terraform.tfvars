@@ -1,0 +1,5 @@
+env               = "prd"
+project_name      = "todo-list-app"
+region            = "ap-northeast-1"
+vpc_cidr          = "10.0.0.0/16"
+private_AZ_A      = "ap-northeast-1a"

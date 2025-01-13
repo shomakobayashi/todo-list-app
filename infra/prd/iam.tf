@@ -1,3 +1,4 @@
+# IAMポリシー
 resource "aws_iam_policy" "github_actions_policy" {
   name        = "${var.project_name}-${var.env}-iam-policy-actions"
   description = "Policy for GitHub Actions to manage Terraform resources"
@@ -28,95 +29,97 @@ resource "aws_iam_policy" "github_actions_policy" {
           "dynamodb:DeleteItem",
           "dynamodb:Scan",
           "dynamodb:Query",
-          "dynamodb:DescribeTable"
+          "dynamodb:DescribeContinuousBackups"
         ],
         Resource = "arn:aws:dynamodb:ap-northeast-1:031869840243:table/terraform-lock-table"
       },
-      # EC2 関連リソースの操作権限
+      # Cognito 権限
       {
         Effect = "Allow",
         Action = [
-          "ec2:DescribeInstances",
-          "ec2:RunInstances",
-          "ec2:TerminateInstances",
-          "ec2:DescribeSecurityGroups",
-          "ec2:AuthorizeSecurityGroupIngress",
-          "ec2:RevokeSecurityGroupIngress",
-          "ec2:DescribeSubnets",
-          "ec2:DescribeVpcs",
-          "ec2:DescribeRouteTables",
-          "ec2:CreateTags"
+          "cognito-idp:*"
         ],
         Resource = "*"
       },
-      # RDS 関連リソースの操作権限
+      # IAM 権限
       {
         Effect = "Allow",
         Action = [
-          "rds:DescribeDBInstances",
-          "rds:CreateDBInstance",
-          "rds:ModifyDBInstance",
-          "rds:DeleteDBInstance",
-          "rds:DescribeDBSecurityGroups",
-          "rds:CreateDBSecurityGroup",
-          "rds:AuthorizeDBSecurityGroupIngress",
-          "rds:RevokeDBSecurityGroupIngress"
-        ],
-        Resource = "*"
-      },
-      # ALB 関連リソースの操作権限
-      {
-        Effect = "Allow",
-        Action = [
-          "elasticloadbalancing:DescribeLoadBalancers",
-          "elasticloadbalancing:CreateLoadBalancer",
-          "elasticloadbalancing:DeleteLoadBalancer",
-          "elasticloadbalancing:DescribeTargetGroups",
-          "elasticloadbalancing:CreateTargetGroup",
-          "elasticloadbalancing:DeleteTargetGroup",
-          "elasticloadbalancing:ModifyTargetGroup",
-          "elasticloadbalancing:RegisterTargets",
-          "elasticloadbalancing:DeregisterTargets"
-        ],
-        Resource = "*"
-      },
-      # Route53 関連リソースの操作権限
-      {
-        Effect = "Allow",
-        Action = [
-          "route53:ChangeResourceRecordSets",
-          "route53:GetChange",
-          "route53:ListHostedZones",
-          "route53:CreateHostedZone",
-          "route53:DeleteHostedZone",
-          "route53:ListResourceRecordSets"
-        ],
-        Resource = "*"
-      },
-      # ACM 関連リソースの操作権限
-      {
-        Effect = "Allow",
-        Action = [
-          "acm:RequestCertificate",
-          "acm:DescribeCertificate",
-          "acm:DeleteCertificate",
-          "acm:ListCertificates",
-          "acm:AddTagsToCertificate",
-          "acm:RemoveTagsFromCertificate"
-        ],
-        Resource = "*"
-      },
-      # IAM 操作（ロールやポリシー管理）
-      {
-        Effect = "Allow",
-        Action = [
-          "iam:PassRole",
+          "iam:GetPolicy",
+          "iam:GetUser",
+          "iam:ListRolePolicies",
           "iam:GetRole",
-          "iam:ListRoles",
           "iam:CreateRole",
           "iam:DeleteRole",
+          "iam:PutRolePolicy",
+          "iam:DeleteRolePolicy",
           "iam:AttachRolePolicy",
           "iam:DetachRolePolicy"
+        ],
+        Resource = "*"
+      },
+      # EC2 関連権限
+      {
+        Effect = "Allow",
+        Action = [
+          "ec2:*"
+        ],
+        Resource = "*"
+      },
+      # RDS 権限
+      {
+        Effect = "Allow",
+        Action = [
+          "rds:*"
+        ],
+        Resource = "*"
+      },
+      # ACM 権限
+      {
+        Effect = "Allow",
+        Action = [
+          "acm:*"
+        ],
+        Resource = "*"
+      },
+      # Route53 権限
+      {
+        Effect = "Allow",
+        Action = [
+          "route53:*"
+        ],
+        Resource = "*"
+      },
+      # ALB 関連権限
+      {
+        Effect = "Allow",
+        Action = [
+          "elasticloadbalancing:*",
+          "elasticloadbalancingv2:*"
+        ],
+        Resource = "*"
+      },
+      # セキュリティグループ作成のための追加権限
+      {
+        Effect = "Allow",
+        Action = [
+          "ec2:CreateSecurityGroup",
+          "ec2:DescribeSecurityGroups",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupIngress"
+        ],
+        Resource = "*"
+      },
+      # サブネット、ルートテーブル関連の権限
+      {
+        Effect = "Allow",
+        Action = [
+          "ec2:CreateSubnet",
+          "ec2:DescribeSubnets",
+          "ec2:CreateRoute",
+          "ec2:CreateRouteTable",
+          "ec2:AssociateRouteTable",
+          "ec2:DescribeRouteTables"
         ],
         Resource = "*"
       }
@@ -124,7 +127,7 @@ resource "aws_iam_policy" "github_actions_policy" {
   })
 }
 
-
+# IAMロール
 resource "aws_iam_role" "github_actions_role" {
   name               = "${var.project_name}-${var.env}-iam-role-actions"
   assume_role_policy = jsonencode({

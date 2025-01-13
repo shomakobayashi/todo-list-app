@@ -8,6 +8,7 @@ resource "aws_cognito_user_pool" "main" {
     require_uppercase = true
     require_numbers   = true
     require_symbols   = true
+    temporary_password_validity_days = 7
   }
 
   # ユーザー登録時の検証方法
@@ -19,6 +20,6 @@ resource "aws_cognito_user_pool" "main" {
   }
 
   tags = {
-    Environment = var.environment
+    Environment = var.env
   }
 }

@@ -1,9 +1,11 @@
 variable "env" {
-  type = string
+  default   = "prd"
+  type      = string
 }
 
-variable "private_AZ_A" {
-  type = string
+variable "project_name" {
+  description = "The name of the project"
+  type        = string
 }
 
 variable "region" {
@@ -16,38 +18,10 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
-variable "domain_name" {
-  description = "Route53で管理するドメイン名"
+variable "private_AZ_A" {
+  type = string
 }
 
-variable "environment" {
-  description = "環境名 (例: prd)"
-  default     = "prd"
-}
-
-# RDS関連
-variable "rds_db_name" {
-  description = "RDSのデータベース名"
-  default     = "todo_db"
-}
-
-variable "rds_username" {
-  description = "RDSのユーザー名"
-  default     = "admin"
-}
-
-variable "rds_password" {
-  description = "RDSのパスワード"
-  sensitive   = true
-}
-
-# ECSタスク関連
-variable "ecs_task_cpu" {
-  description = "ECSタスクのCPU"
-  default     = "256"
-}
-
-variable "ecs_task_memory" {
-  description = "ECSタスクのメモリ"
-  default     = "512"
-}
+# variable "domain_name" {
+#   description = "Route53で管理するドメイン名"
+# }

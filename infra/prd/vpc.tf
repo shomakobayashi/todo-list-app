@@ -1,43 +1,33 @@
-#----------------------------------------
 # VPC
-#----------------------------------------
 resource "aws_vpc" "aws_prd_vpc" {
   enable_dns_support   = true
   cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
 }
 
-#----------------------------------------
-# パブリックサブネット
+# PublicSubnet
 #----------------------------------------
 resource "aws_subnet" "aws_prd_public_subnet" {
   vpc_id                  = aws_vpc.aws_prd_vpc.id
-  cidr_block              = cidrsubnet(aws_vpc.aws_prd_vpc.cidr_block, 8)
+  cidr_block              = "10.0.1.0/24"
   availability_zone       = "ap-northeast-1a"
   map_public_ip_on_launch = true
 }
 
-#----------------------------------------
-# プライベートサブネット
-#----------------------------------------
+#PrivateSubnet
 resource "aws_subnet" "aws_prd_private_subnet" {
-  count                   = 2
   vpc_id                  = aws_vpc.aws_prd_vpc.id
-  cidr_block              = cidrsubnet(aws_vpc.aws_prd_vpc.cidr_block, 8)
+  cidr_block              = "10.0.2.0/24"
   availability_zone       = "ap-northeast-1a"
   map_public_ip_on_launch = false
 }
 
-#----------------------------------------
-# インターネットゲートウェイ
-#----------------------------------------
+# IGW
 resource "aws_internet_gateway" "aws_prd_igw" {
   vpc_id = aws_vpc.aws_prd_vpc.id
 }
 
-#----------------------------------------
-# ルートテーブル
-#----------------------------------------
+#RouteTable
 resource "aws_route_table" "aws_prd_rtb" {
   vpc_id = aws_vpc.aws_prd_vpc.id
   route {
@@ -46,9 +36,7 @@ resource "aws_route_table" "aws_prd_rtb" {
   }
 }
 
-#----------------------------------------
 # サブネットにルートテーブルを紐づけ
-#----------------------------------------
 resource "aws_route_table_association" "aws_prd_rt_assoc" {
   subnet_id      = aws_subnet.aws_prd_public_subnet.id
   route_table_id = aws_route_table.aws_prd_rtb.id

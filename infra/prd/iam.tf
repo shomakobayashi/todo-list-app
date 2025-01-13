@@ -55,11 +55,11 @@ resource "aws_iam_role" "github_actions_role" {
         Principal = {
           Federated = "arn:aws:iam::031869840243:oidc-provider/token.actions.githubusercontent.com"
         },
-        Action    = "sts:AssumeRole",
+        Action    = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
             "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-            "token.actions.githubusercontent.com:sub": "repo:shomakobayashi/todo-list-app:environment:${var.env}"
+            "token.actions.githubusercontent.com:sub": "repo:shomakobayashi/todo-list-app:ref:refs/heads/main"
           }
         }
       }

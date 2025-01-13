@@ -29,7 +29,9 @@ resource "aws_iam_policy" "github_actions_policy" {
           "dynamodb:DeleteItem",
           "dynamodb:Scan",
           "dynamodb:Query",
-          "dynamodb:DescribeContinuousBackups"
+          "dynamodb:DescribeContinuousBackups",
+          "dynamodb:DescribeTable",
+          "dynamodb:ListTagsOfResource"
         ],
         Resource = "arn:aws:dynamodb:ap-northeast-1:031869840243:table/terraform-lock-table"
       },
@@ -46,6 +48,8 @@ resource "aws_iam_policy" "github_actions_policy" {
         Effect = "Allow",
         Action = [
           "iam:GetPolicy",
+          "iam:GetPolicyVersion",
+          "iam:ListAttachedRolePolicies",
           "iam:GetUser",
           "iam:ListRolePolicies",
           "iam:GetRole",
@@ -54,7 +58,8 @@ resource "aws_iam_policy" "github_actions_policy" {
           "iam:PutRolePolicy",
           "iam:DeleteRolePolicy",
           "iam:AttachRolePolicy",
-          "iam:DetachRolePolicy"
+          "iam:DetachRolePolicy",
+          "iam:ListAccessKeys",
         ],
         Resource = "*"
       },
@@ -153,15 +158,4 @@ resource "aws_iam_role" "github_actions_role" {
 resource "aws_iam_role_policy_attachment" "github_actions_policy_attach" {
   role       = aws_iam_role.github_actions_role.name
   policy_arn = aws_iam_policy.github_actions_policy.arn
-}
-
-# GithubActionsユーザー
-resource "aws_iam_user" "github_actions_user" {
-  name = "${var.project_name}-${var.env}-iam-user-actions"
-  path = "/"
-}
-
-# アクセスキーの作成
-resource "aws_iam_access_key" "github_actions_access_key" {
-  user = aws_iam_user.github_actions_user.name
 }

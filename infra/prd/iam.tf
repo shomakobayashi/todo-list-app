@@ -15,8 +15,8 @@ resource "aws_iam_policy" "github_actions_policy" {
           "s3:ListBucket"
         ],
         Resource = [
-          "arn:aws:s3:::todo-list-app-${var.env}-s3-terraform-state",
-          "arn:aws:s3:::todo-list-app-${var.env}-s3-terraform-state/*"
+          "arn:aws:s3:::todo-list-${var.env}-s3-terraform-state",
+          "arn:aws:s3:::todo-list-${var.env}-s3-terraform-state/*"
         ]
       },
       # DynamoDB テーブルアクセス権限

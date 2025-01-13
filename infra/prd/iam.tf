@@ -27,23 +27,103 @@ resource "aws_iam_policy" "github_actions_policy" {
           "dynamodb:GetItem",
           "dynamodb:DeleteItem",
           "dynamodb:Scan",
-          "dynamodb:Query"
+          "dynamodb:Query",
+          "dynamodb:DescribeTable"
         ],
         Resource = "arn:aws:dynamodb:ap-northeast-1:031869840243:table/terraform-lock-table"
       },
-      # 必要な AWS リソースの操作権限（例: EC2, RDS, etc）
+      # EC2 関連リソースの操作権限
       {
         Effect = "Allow",
         Action = [
-          "ec2:*",
-          "rds:*",
-          "iam:*"
+          "ec2:DescribeInstances",
+          "ec2:RunInstances",
+          "ec2:TerminateInstances",
+          "ec2:DescribeSecurityGroups",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeVpcs",
+          "ec2:DescribeRouteTables",
+          "ec2:CreateTags"
+        ],
+        Resource = "*"
+      },
+      # RDS 関連リソースの操作権限
+      {
+        Effect = "Allow",
+        Action = [
+          "rds:DescribeDBInstances",
+          "rds:CreateDBInstance",
+          "rds:ModifyDBInstance",
+          "rds:DeleteDBInstance",
+          "rds:DescribeDBSecurityGroups",
+          "rds:CreateDBSecurityGroup",
+          "rds:AuthorizeDBSecurityGroupIngress",
+          "rds:RevokeDBSecurityGroupIngress"
+        ],
+        Resource = "*"
+      },
+      # ALB 関連リソースの操作権限
+      {
+        Effect = "Allow",
+        Action = [
+          "elasticloadbalancing:DescribeLoadBalancers",
+          "elasticloadbalancing:CreateLoadBalancer",
+          "elasticloadbalancing:DeleteLoadBalancer",
+          "elasticloadbalancing:DescribeTargetGroups",
+          "elasticloadbalancing:CreateTargetGroup",
+          "elasticloadbalancing:DeleteTargetGroup",
+          "elasticloadbalancing:ModifyTargetGroup",
+          "elasticloadbalancing:RegisterTargets",
+          "elasticloadbalancing:DeregisterTargets"
+        ],
+        Resource = "*"
+      },
+      # Route53 関連リソースの操作権限
+      {
+        Effect = "Allow",
+        Action = [
+          "route53:ChangeResourceRecordSets",
+          "route53:GetChange",
+          "route53:ListHostedZones",
+          "route53:CreateHostedZone",
+          "route53:DeleteHostedZone",
+          "route53:ListResourceRecordSets"
+        ],
+        Resource = "*"
+      },
+      # ACM 関連リソースの操作権限
+      {
+        Effect = "Allow",
+        Action = [
+          "acm:RequestCertificate",
+          "acm:DescribeCertificate",
+          "acm:DeleteCertificate",
+          "acm:ListCertificates",
+          "acm:AddTagsToCertificate",
+          "acm:RemoveTagsFromCertificate"
+        ],
+        Resource = "*"
+      },
+      # IAM 操作（ロールやポリシー管理）
+      {
+        Effect = "Allow",
+        Action = [
+          "iam:PassRole",
+          "iam:GetRole",
+          "iam:ListRoles",
+          "iam:CreateRole",
+          "iam:DeleteRole",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy"
         ],
         Resource = "*"
       }
     ]
   })
 }
+
 
 resource "aws_iam_role" "github_actions_role" {
   name               = "${var.project_name}-${var.env}-iam-role-actions"

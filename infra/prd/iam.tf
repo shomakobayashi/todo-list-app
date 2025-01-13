@@ -29,9 +29,10 @@ resource "aws_iam_policy" "github_actions_policy" {
           "dynamodb:DeleteItem",
           "dynamodb:Scan",
           "dynamodb:Query",
-          "dynamodb:DescribeContinuousBackups",
           "dynamodb:DescribeTable",
-          "dynamodb:ListTagsOfResource"
+          "dynamodb:DescribeTimeToLive",
+          "dynamodb:ListTagsOfResource",
+          "dynamodb:DescribeContinuousBackups",
         ],
         Resource = "arn:aws:dynamodb:ap-northeast-1:031869840243:table/terraform-lock-table"
       },

@@ -94,7 +94,7 @@ jobs:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
     needs: get-information
-    if: ${{ needs.get-information.outputs.plan_apply == 'plan' && needs.get-information.outputs.unlock != 'true' }}
+    if: needs.get-information.outputs.work_dir != '__not_difined' && needs.get-information.outputs.unlock != 'true'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -126,7 +126,7 @@ jobs:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
     needs: [ get-information, A_terraform_plan ]
-    if: ${{ needs.get-information.outputs.plan_apply == 'apply' && needs.get-information.outputs.tl_approved == 'true' }}
+    if: needs.get-information.outputs.plan_apply == 'apply' && needs.get-information.outputs.work_dir != '__not_difined' && needs.get-information.outputs.unlock != 'true' && needs.get-information.outputs.tl_approved == 'true'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4

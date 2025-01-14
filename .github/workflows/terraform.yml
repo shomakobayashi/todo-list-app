@@ -4,9 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       project_id:
-        description: "Project Identifier (e.g., prd)"
+        description: "Project Identifier (projectA, projectB)"
         required: true
         type: string
+      environment:
+        description: "Environment (dev, prd)"
+        required: true
+        type: choice
+        options:
+          - dev
+          - prd
       plan_apply_id:
         description: "Choose action (plan/apply)"
         required: true
@@ -40,6 +47,7 @@ jobs:
       plan_apply: ${{ steps.set_outputs.outputs.plan_apply }}
       unlock: ${{ steps.set_outputs.outputs.unlock }}
       project: ${{ steps.set_outputs.outputs.project }}
+      environment: ${{ steps.set_outputs.outputs.environment }}
       tl_approved: ${{ steps.set_outputs.outputs.tl_approved }}
 
     steps:
@@ -50,19 +58,21 @@ jobs:
         id: set_outputs
         run: |
           project_id="${{ github.event.inputs.project_id }}"
+          environment="${{ github.event.inputs.environment }}"
           plan_apply="${{ github.event.inputs.plan_apply_id }}"
           unlock="${{ github.event.inputs.tfstate_unlock_id }}"
           tl_approved="${{ github.event.inputs.tl_approved_id }}"
-
-          if [[ -z "$project_id" ]]; then
-            echo "Project ID is required"
+          
+          if [[ -z "$project_id" || -z "$environment" ]]; then
+            echo "Project ID and Environment are required"
             exit 1
           fi
-
-          echo "work_dir=./infra/${project_id}/" >> $GITHUB_OUTPUT
+          
+          echo "work_dir=./infra/${project_id}/${environment}/" >> $GITHUB_OUTPUT
           echo "plan_apply=${plan_apply}" >> $GITHUB_OUTPUT
           echo "unlock=${unlock}" >> $GITHUB_OUTPUT
           echo "project=${project_id}" >> $GITHUB_OUTPUT
+          echo "environment=${environment}" >> $GITHUB_OUTPUT
           echo "tl_approved=${tl_approved}" >> $GITHUB_OUTPUT
 
       - name: Debug Inputs
@@ -84,7 +94,7 @@ jobs:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
     needs: get-information
-#    if: ${{ needs.get-information.outputs.plan_apply == '__not_difined' && needs.get-information.outputs.unlock != 'true' }}
+    if: ${{ needs.get-information.outputs.plan_apply == 'plan' && needs.get-information.outputs.unlock != 'true' }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -115,8 +125,8 @@ jobs:
   B_terraform_apply:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
-    needs: [get-information, A_terraform_plan]
-#    if: ${{ needs.get-information.outputs.plan_apply == 'apply' && needs.get-information.outputs.tl_approved == 'true' }}
+    needs: [ get-information, A_terraform_plan ]
+    if: ${{ needs.get-information.outputs.plan_apply == 'apply' && needs.get-information.outputs.tl_approved == 'true' }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -125,7 +135,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ap-northeast-1
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
@@ -154,7 +164,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ap-northeast-1
 
       - name: TFState Unlock
         run: |

@@ -65,6 +65,21 @@ jobs:
           echo "project=${project_id}" >> $GITHUB_OUTPUT
           echo "tl_approved=${tl_approved}" >> $GITHUB_OUTPUT
 
+      - name: Debug Inputs
+        run: |
+          echo "Project ID: ${{ github.event.inputs.project_id }}"
+          echo "Plan or Apply: ${{ github.event.inputs.plan_apply_id }}"
+          echo "Unlock TFState: ${{ github.event.inputs.tfstate_unlock_id }}"
+          echo "TL Approved: ${{ github.event.inputs.tl_approved_id }}"
+
+      - name: Debug Outputs
+        run: |
+          echo "work_dir=${{ steps.set_outputs.outputs.work_dir }}"
+          echo "plan_apply=${{ steps.set_outputs.outputs.plan_apply }}"
+          echo "unlock=${{ steps.set_outputs.outputs.unlock }}"
+          echo "project=${{ steps.set_outputs.outputs.project }}"
+          echo "tl_approved=${{ steps.set_outputs.outputs.tl_approved }}"
+
   A_terraform_plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest

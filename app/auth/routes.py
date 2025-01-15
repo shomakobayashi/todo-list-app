@@ -1,52 +1,21 @@
-# from flask import Blueprint, request, jsonify
-# import boto3
-# import os
-#
-# auth_blueprint = Blueprint('auth', __name__)
-#
-# # Cognito設定
-# COGNITO_REGION = os.getenv("COGNITO_REGION", "ap-northeast-1")
-# COGNITO_CLIENT_ID = os.getenv("COGNITO_CLIENT_ID")
-# COGNITO_CLIENT_SECRET = os.getenv("COGNITO_CLIENT_SECRET")
-#
-# # Cognitoクライアント
-# cognito_client = boto3.client('cognito-idp', region_name=COGNITO_REGION)
-#
-# @auth_blueprint.route('/', methods=['GET'])
-# def login_page():
-#     return jsonify({"message": "Welcome to the login page. Please use POST to authenticate."})
-#
-# @auth_blueprint.route('/', methods=['POST'])
-# def login():
-#     try:
-#         # リクエストデータを取得
-#         data = request.json
-#         username = data.get('username')
-#         password = data.get('password')
-#
-#         if not username or not password:
-#             return jsonify({"error": "Username and password are required"}), 400
-#
-#         # Cognitoで認証
-#         response = cognito_client.initiate_auth(
-#             ClientId=COGNITO_CLIENT_ID,
-#             AuthFlow='USER_PASSWORD_AUTH',
-#             AuthParameters={
-#                 'USERNAME': username,
-#                 'PASSWORD': password
-#             }
-#         )
-#
-#         # トークンを返す
-#         return jsonify({
-#             "message": "Login successful",
-#             "id_token": response['AuthenticationResult']['IdToken'],
-#             "access_token": response['AuthenticationResult']['AccessToken'],
-#             "refresh_token": response['AuthenticationResult']['RefreshToken']
-#         })
-#     except cognito_client.exceptions.NotAuthorizedException:
-#         return jsonify({"error": "Invalid username or password"}), 401
-#     except cognito_client.exceptions.UserNotFoundException:
-#         return jsonify({"error": "User does not exist"}), 404
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
+from flask import Blueprint, request, jsonify
+from werkzeug.security import check_password_hash
+from app.models.user import User
+from app.database import db
+from app.utils.jwt_helper import create_jwt
+
+# 認証関連のルートを管理するBlueprintを作成
+auth_blueprint = Blueprint('auth', __name__, url_prefix='/auth')
+
+# ログイン処理
+@auth_blueprint.route('/login', methods=['POST'])
+def login():
+    # クライアントから送信されたJSONデータを取得
+    data = request.json
+    # usernameに基づいてデータベースからユーザーを検索
+    user = db.session.query(User).filter_by(username=data['username']).first()
+
+    if user and check_password_hash(user.password, data['password']):
+        token = create_jwt(user.id)
+        return jsonify({"access_token": token}), 200
+    return jsonify({"error": "Invalid credentials"}), 401
